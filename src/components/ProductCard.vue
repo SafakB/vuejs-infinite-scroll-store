@@ -62,15 +62,15 @@ const stockStatus = computed(() => {
     
     <div class="card-body d-flex flex-column">
       <small class="text-primary text-uppercase fw-bold mb-1">{{ product.category }}</small>
-      <h5 class="card-title">{{ product.title }}</h5>
-      <p class="card-text text-muted small">{{ product.description }}</p>
+      <h5 class="card-title flex-shrink-0" :title="product.title">{{ product.title }}</h5>
+      <p class="card-text text-muted small flex-grow-1">{{ product.description }}</p>
       
-      <div class="mb-2">
+      <div class="mb-2 flex-shrink-0">
         <span class="text-warning me-2">{{ starRating }}</span>
         <small class="text-muted">({{ product.rating.toFixed(1) }})</small>
       </div>
       
-      <div class="row g-2 mb-3 small">
+      <div class="row g-2 mb-3 small flex-shrink-0">
         <div class="col-12" v-if="product.brand">
           <strong>Brand:</strong> {{ product.brand }}
         </div>
@@ -79,7 +79,7 @@ const stockStatus = computed(() => {
         </div>
       </div>
       
-      <div class="mt-auto">
+      <div class="mt-auto flex-shrink-0">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="price-section">
             <div v-if="product.discountPercentage > 0">
@@ -132,17 +132,22 @@ const stockStatus = computed(() => {
   font-weight: 600;
   line-height: 1.3;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 1.3rem; /* Ensure consistent height for 1 line */
 }
 
 .card-text {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.4;
+  min-height: 3.9rem; /* Ensure consistent height for exactly 3 lines */
+  max-height: 4.2rem; /* Prevent overflow beyond 3 lines */
 }
 
 .btn:disabled {
