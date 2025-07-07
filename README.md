@@ -5,11 +5,11 @@ This project is a modern product store application developed using Vue.js 3 and 
 ## 🚀 Features
 
 - **Infinite Scroll**: Automatically loads new products as the page is scrolled down
-- **Modern UI/UX**: Responsive design and modern visual interface
-- **Product Cards**: Detailed information cards for each product
-- **Loading States**: User-friendly loading indicators while data is being loaded
-- **Error Handling**: User-friendly error messages for API failures
-- **Mobile Responsive**: Perfect appearance on all devices
+- **Bootstrap UI/UX**: Professional responsive design using Bootstrap 5.3.0 components
+- **Product Cards**: Detailed information cards with Bootstrap card components
+- **Loading States**: Bootstrap spinners and alert components for user feedback
+- **Error Handling**: Bootstrap alert components for user-friendly error messages
+- **Mobile Responsive**: Bootstrap's responsive grid system for perfect appearance on all devices
 - **Product Details**: Detailed product pages with full information
 - **Similar Products**: Related product recommendations based on product name
 - **Customer Reviews**: Display customer reviews and ratings
@@ -20,9 +20,10 @@ This project is a modern product store application developed using Vue.js 3 and 
 - **Vue.js 3** - Modern JavaScript framework
 - **Vue Router 4** - Client-side routing
 - **Vite** - Fast build tool and development server
+- **Bootstrap 5.3.0** - Modern CSS framework and component library
 - **Composition API** - Vue 3's modern approach
 - **DummyJSON API** - REST API for test product data
-- **Modern CSS** - Flexbox, Grid and CSS3 animations
+- **Responsive Grid System** - Bootstrap's flexbox-based grid layout
 
 ## 📦 Installation
 
@@ -81,9 +82,12 @@ Build files will be created in the `dist/` folder.
 - Responsive layout
 
 ### Responsive Design
-- Desktop: 3-4 column grid
-- Tablet: 2 column grid
-- Mobile: 1 column grid
+- Bootstrap responsive grid system
+- Desktop: 4 column grid (col-xl-3)
+- Tablet: 3 column grid (col-lg-4)
+- Small tablets: 2 column grid (col-md-6)
+- Mobile: 1 column grid (col-12)
+- Bootstrap utility classes for spacing and alignment
 
 ## 🔧 Development
 
@@ -112,26 +116,33 @@ The application uses DummyJSON API:
 - Search endpoint: `https://dummyjson.com/products/search`
 
 ### Performance Optimizations
-- Lazy loading images
+- Lazy loading images with Bootstrap responsive image classes
 - Debounced scroll events
-- Efficient re-rendering
-- Modern CSS optimizations
+- Efficient re-rendering with Vue 3 reactivity
+- Bootstrap CSS optimizations and minimal custom styles
 - Global state management for caching
 - Scroll position restoration
+- Equal height product cards using Bootstrap flexbox utilities
 
 ## 🎨 Design System
 
+### Bootstrap 5.3.0 Integration
+- **Component Library**: Cards, buttons, badges, alerts, spinners
+- **Grid System**: Responsive flexbox-based 12-column grid
+- **Utility Classes**: Spacing, typography, colors, and positioning
+- **Custom Theme**: Maintained original gradient design with Bootstrap variables
+
 ### Colors
-- Primary: `#667eea` (Gradient blue)
-- Secondary: `#764ba2` (Gradient purple)
-- Success: `#27ae60` (Green)
-- Warning: `#f39c12` (Orange)
-- Danger: `#e74c3c` (Red)
+- Primary: `#667eea` (Gradient blue) - Custom Bootstrap primary color
+- Secondary: `#764ba2` (Gradient purple) - Custom gradient endpoint
+- Success: Bootstrap success color for stock status
+- Warning: Bootstrap warning color for low stock
+- Danger: Bootstrap danger color for out of stock and discounts
 
 ### Typography
-- Font Family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
-- Responsive font sizes
-- Optimal line heights
+- Bootstrap's default font stack
+- Responsive typography classes (.display-*, .lead, .h*)
+- Consistent spacing with Bootstrap utilities
 
 ## 📄 License
 
