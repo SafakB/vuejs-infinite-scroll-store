@@ -7,8 +7,8 @@
     <header class="bg-primary text-white py-4 mb-4">
       <div class="container">
         <router-link to="/" class="text-decoration-none text-white">
-          <h1 class="display-4 fw-bold mb-1">Product Store</h1>
-          <p class="lead mb-0">Discover the highest quality products</p>
+          <h1 class="display-4 fw-bold mb-1">Vue.js Infinite Scroll Product Store</h1>
+          <p class="lead mb-0">Browse thousands of products with seamless infinite scrolling</p>
         </router-link>
       </div>
     </header>
@@ -21,7 +21,8 @@
     
     <footer class="bg-dark text-white text-center py-4 mt-5">
       <div class="container">
-        <p class="mb-0">&copy; 2025 Product Store. All rights reserved.</p>
+        <p class="mb-0">&copy; 2025 Vue.js Infinite Scroll Product Store. I 💓 Open Source!</p>
+        <p class="mb-0">Şafak Bahçe</p>
       </div>
     </footer>
   </div>
