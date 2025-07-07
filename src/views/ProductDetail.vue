@@ -10,12 +10,12 @@ const loading = ref(false)
 const error = ref(null)
 const selectedImageIndex = ref(0)
 
-// Benzer ürünler için state
+// Similar products state
 const similarProducts = ref([])
 const similarLoading = ref(false)
 const similarError = ref(null)
 
-// API'den ürün detayını getir
+// Get API product detail
 const fetchProductDetail = async (id) => {
   loading.value = true
   error.value = null
@@ -141,149 +141,153 @@ watch(() => route.params.id, (newId, oldId) => {
 </script>
 
 <template>
-  <div class="product-detail">
+  <div class="container py-4">
     <!-- Loading state -->
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Loading product information...</p>
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted">Loading product information...</p>
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="error-state">
-      <div class="error-icon">⚠️</div>
-      <h3>An error occurred</h3>
-      <p>{{ error }}</p>
-      <div class="error-actions">
-        <button @click="fetchProductDetail(route.params.id)" class="retry-btn">Try Again</button>
-        <button @click="goBack" class="back-btn">Back to Home</button>
+    <div v-else-if="error" class="text-center py-5">
+      <div class="display-1">⚠️</div>
+      <h3 class="mt-3 text-danger">An error occurred</h3>
+      <p class="text-muted">{{ error }}</p>
+      <div class="d-flex gap-3 justify-content-center mt-4">
+        <button @click="fetchProductDetail(route.params.id)" class="btn btn-primary">Try Again</button>
+        <button @click="goBack" class="btn btn-outline-primary">Back to Home</button>
       </div>
     </div>
 
     <!-- Product detail -->
-    <div v-else-if="product" class="product-content">
+    <div v-else-if="product">
       <!-- Back button -->
-      <div class="header-actions">
-        <button @click="goBack" class="back-button">
+      <div class="mb-4">
+        <button @click="goBack" class="btn btn-outline-primary">
           ← Back to Home
         </button>
       </div>
 
-      <div class="product-layout">
-        <!-- Ürün görselleri -->
-        <div class="product-images">
-          <div class="main-image">
+      <div class="row g-5 mb-5">
+        <!-- Product images -->
+        <div class="col-lg-6">
+          <div class="position-relative mb-3">
             <img 
               :src="product.images && product.images.length > 0 ? product.images[selectedImageIndex] : product.thumbnail" 
               :alt="product.title"
-              class="main-product-image"
+              class="img-fluid rounded main-product-image"
             />
-            <div v-if="product.discountPercentage > 0" class="discount-badge">
-              -%{{ Math.round(product.discountPercentage) }}
+            <div v-if="product.discountPercentage > 0" class="position-absolute top-0 start-0 m-3">
+              <span class="badge bg-danger fs-5">
+                -{{ Math.round(product.discountPercentage) }}%
+              </span>
             </div>
           </div>
           
           <!-- Thumbnail images -->
-          <div v-if="product.images && product.images.length > 1" class="thumbnail-images">
+          <div v-if="product.images && product.images.length > 1" class="d-flex gap-2 flex-wrap">
             <img 
               v-for="(image, index) in product.images" 
               :key="index"
               :src="image" 
               :alt="`${product.title} - ${index + 1}`"
-              class="thumbnail-image"
-              :class="{ active: selectedImageIndex === index }"
+              class="thumbnail-image rounded"
+              :class="{ 'border-primary': selectedImageIndex === index }"
               @click="selectImage(index)"
             />
           </div>
         </div>
 
         <!-- Product information -->
-        <div class="product-info">
-          <div class="product-category">{{ product.category }}</div>
-          <h1 class="product-title">{{ product.title }}</h1>
+        <div class="col-lg-6">
+          <span class="badge bg-primary text-uppercase mb-2">{{ product.category }}</span>
+          <h1 class="display-5 fw-bold mb-3">{{ product.title }}</h1>
           
           <!-- Rating -->
-          <div class="product-rating">
-            <span class="stars">{{ starRating }}</span>
-            <span class="rating-text">({{ product.rating?.toFixed(1) }})</span>
+          <div class="d-flex align-items-center mb-3">
+            <span class="text-warning me-2 fs-5">{{ starRating }}</span>
+            <span class="text-muted">({{ product.rating?.toFixed(1) }})</span>
           </div>
 
           <!-- Price -->
-          <div class="price-section">
-            <div v-if="discountedPrice" class="price-container">
-              <span class="original-price">${{ product.price }}</span>
-              <span class="discounted-price">${{ discountedPrice }}</span>
-              <span class="discount-text">{{ Math.round(product.discountPercentage) }}% off</span>
+          <div class="border-top border-bottom py-3 mb-4">
+            <div v-if="discountedPrice">
+              <small class="text-decoration-line-through text-muted">${{ product.price }}</small>
+              <div class="h2 text-danger mb-1">${{ discountedPrice }}</div>
+              <small class="text-danger fw-bold">{{ Math.round(product.discountPercentage) }}% off</small>
             </div>
-            <div v-else class="price-container">
-              <span class="current-price">${{ product.price }}</span>
+            <div v-else>
+              <div class="h2 text-dark mb-0">${{ product.price }}</div>
             </div>
           </div>
 
           <!-- Stock status -->
-          <div class="stock-info">
-            <span class="stock-badge" :class="stockStatus.class">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="badge" :class="stockStatus.class">
               {{ stockStatus.text }}
             </span>
-            <span class="stock-count" v-if="product.stock > 0">
+            <span class="text-muted" v-if="product.stock > 0">
               {{ product.stock }} in stock
             </span>
           </div>
 
           <!-- Description -->
-          <div class="description">
-            <h3>Product Description</h3>
-            <p>{{ product.description }}</p>
+          <div class="mb-4">
+            <h4 class="fw-bold mb-3">Product Description</h4>
+            <p class="text-muted">{{ product.description }}</p>
           </div>
 
           <!-- Product details -->
-          <div class="product-details">
-            <h3>Product Information</h3>
-            <div class="details-grid">
-              <div class="detail-item" v-if="product.brand">
+          <div class="mb-4">
+            <h4 class="fw-bold mb-3">Product Information</h4>
+            <div class="row g-3">
+              <div class="col-md-6" v-if="product.brand">
                 <strong>Brand:</strong> {{ product.brand }}
               </div>
-              <div class="detail-item" v-if="product.sku">
+              <div class="col-md-6" v-if="product.sku">
                 <strong>SKU:</strong> {{ product.sku }}
               </div>
-              <div class="detail-item" v-if="product.weight">
+              <div class="col-md-6" v-if="product.weight">
                 <strong>Weight:</strong> {{ product.weight }}g
               </div>
-              <div class="detail-item" v-if="product.dimensions">
+              <div class="col-md-6" v-if="product.dimensions">
                 <strong>Dimensions:</strong> 
                 {{ product.dimensions.width }}×{{ product.dimensions.height }}×{{ product.dimensions.depth }} cm
               </div>
-              <div class="detail-item" v-if="product.warrantyInformation">
+              <div class="col-md-6" v-if="product.warrantyInformation">
                 <strong>Warranty:</strong> {{ product.warrantyInformation }}
               </div>
-              <div class="detail-item" v-if="product.shippingInformation">
+              <div class="col-md-6" v-if="product.shippingInformation">
                 <strong>Shipping:</strong> {{ product.shippingInformation }}
               </div>
-              <div class="detail-item">
+              <div class="col-md-6">
                 <strong>Status:</strong> {{ product.availabilityStatus }}
               </div>
-              <div class="detail-item" v-if="product.minimumOrderQuantity">
+              <div class="col-md-6" v-if="product.minimumOrderQuantity">
                 <strong>Min. Order:</strong> {{ product.minimumOrderQuantity }} pieces
               </div>
             </div>
           </div>
 
           <!-- Tags -->
-          <div v-if="product.tags && product.tags.length > 0" class="product-tags">
-            <h3>Tags</h3>
-            <div class="tags">
-              <span v-for="tag in product.tags" :key="tag" class="tag">
+          <div v-if="product.tags && product.tags.length > 0" class="mb-4">
+            <h4 class="fw-bold mb-3">Tags</h4>
+            <div class="d-flex flex-wrap gap-2">
+              <span v-for="tag in product.tags" :key="tag" class="badge bg-light text-dark">
                 {{ tag }}
               </span>
             </div>
           </div>
 
           <!-- Action buttons -->
-          <div class="action-buttons">
-            <button class="add-to-cart-btn" :disabled="product.stock === 0">
+          <div class="d-grid gap-2 d-md-flex">
+            <button class="btn btn-primary btn-lg flex-fill" :disabled="product.stock === 0">
               <span v-if="product.stock > 0">Add to Cart</span>
               <span v-else>Out of Stock</span>
             </button>
-            <button class="wishlist-btn">
+            <button class="btn btn-outline-danger btn-lg">
               ♥ Add to Favorites
             </button>
           </div>
@@ -291,79 +295,100 @@ watch(() => route.params.id, (newId, oldId) => {
       </div>
 
       <!-- Reviews -->
-      <div v-if="product.reviews && product.reviews.length > 0" class="reviews-section">
-        <h3>Customer Reviews</h3>
-        <div class="reviews-grid">
-          <div v-for="review in product.reviews" :key="review.date" class="review-card">
-            <div class="review-header">
-              <span class="reviewer-name">{{ review.reviewerName }}</span>
-              <span class="review-rating">
-                {{ Array.from({ length: review.rating }, () => '⭐').join('') }}
-              </span>
+      <div v-if="product.reviews && product.reviews.length > 0" class="mt-5">
+        <h3 class="fw-bold mb-4">Customer Reviews</h3>
+        <div class="row g-4">
+          <div v-for="review in product.reviews" :key="review.date" class="col-md-6 col-lg-4">
+            <div class="card h-100 border-start border-primary border-3">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="card-title mb-0">{{ review.reviewerName }}</h6>
+                  <span class="text-warning">
+                    {{ Array.from({ length: review.rating }, () => '⭐').join('') }}
+                  </span>
+                </div>
+                <p class="card-text fst-italic">{{ review.comment }}</p>
+                <small class="text-muted">{{ new Date(review.date).toLocaleDateString('en-US') }}</small>
+              </div>
             </div>
-            <p class="review-comment">{{ review.comment }}</p>
-            <span class="review-date">{{ new Date(review.date).toLocaleDateString('en-US') }}</span>
           </div>
         </div>
       </div>
 
       <!-- Similar Products -->
-      <div class="similar-products-section">
-        <h3>Similar Products</h3>
+      <div class="mt-5">
+        <h3 class="fw-bold mb-4">Similar Products</h3>
         
         <!-- Loading state -->
-        <div v-if="similarLoading" class="similar-loading">
-          <div class="loading-spinner"></div>
+        <div v-if="similarLoading" class="text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
           <p>Loading similar products...</p>
         </div>
         
         <!-- Error state -->
-        <div v-else-if="similarError" class="similar-error">
-          <p>{{ similarError }}</p>
-          <button @click="fetchSimilarProducts(product.category, product.id)" class="retry-similar-btn">
+        <div v-else-if="similarError" class="text-center py-5">
+          <div class="alert alert-danger" role="alert">
+            {{ similarError }}
+          </div>
+          <button @click="fetchSimilarProducts(product.category, product.id)" class="btn btn-outline-primary">
             Try Again
           </button>
         </div>
         
         <!-- Product list -->
-        <div v-else-if="similarProducts.length > 0" class="similar-products-grid">
+        <div v-else-if="similarProducts.length > 0" class="row g-3">
           <div 
             v-for="similarProduct in similarProducts" 
             :key="similarProduct.id" 
-            class="similar-product-card"
-            @click="goToProduct(similarProduct.id)"
+            class="col-6 col-md-4 col-lg-3"
           >
-            <div class="similar-product-image">
-              <img 
-                :src="similarProduct.thumbnail" 
-                :alt="similarProduct.title"
-                loading="lazy"
-              />
-              <div v-if="similarProduct.discountPercentage > 0" class="similar-discount-badge">
-                -%{{ Math.round(similarProduct.discountPercentage) }}
-              </div>
-            </div>
-            
-            <div class="similar-product-info">
-              <div class="similar-product-category">{{ similarProduct.category }}</div>
-              <h4 class="similar-product-title">{{ similarProduct.title }}</h4>
-              
-              <div class="similar-product-rating">
-                <span class="similar-stars">
-                  {{ Array.from({ length: Math.round(similarProduct.rating) }, () => '⭐').join('') }}
-                </span>
-                <span class="similar-rating-text">({{ similarProduct.rating?.toFixed(1) }})</span>
-              </div>
-              
-              <div class="similar-product-price">
-                <div v-if="similarProduct.discountPercentage > 0" class="similar-price-container">
-                  <span class="similar-original-price">${{ similarProduct.price }}</span>
-                  <span class="similar-discounted-price">
-                    ${{ (similarProduct.price - (similarProduct.price * similarProduct.discountPercentage / 100)).toFixed(2) }}
+            <div 
+              class="card h-100 border-0 shadow-sm similar-product-card"
+              @click="goToProduct(similarProduct.id)"
+              style="cursor: pointer; transition: all 0.3s ease;"
+            >
+              <div class="position-relative">
+                <img 
+                  :src="similarProduct.thumbnail" 
+                  :alt="similarProduct.title"
+                  class="card-img-top"
+                  style="height: 180px; object-fit: cover;"
+                  loading="lazy"
+                />
+                <div v-if="similarProduct.discountPercentage > 0" class="position-absolute top-0 start-0 m-2">
+                  <span class="badge bg-danger">
+                    -{{ Math.round(similarProduct.discountPercentage) }}%
                   </span>
                 </div>
-                <div v-else class="similar-price-container">
-                  <span class="similar-current-price">${{ similarProduct.price }}</span>
+              </div>
+              
+              <div class="card-body d-flex flex-column">
+                <div class="mb-1">
+                  <small class="text-primary text-uppercase fw-bold">{{ similarProduct.category }}</small>
+                </div>
+                <h6 class="card-title text-truncate mb-2" :title="similarProduct.title">
+                  {{ similarProduct.title }}
+                </h6>
+                
+                <div class="d-flex align-items-center mb-2">
+                  <span class="text-warning me-1" style="font-size: 0.8rem;">
+                    {{ Array.from({ length: Math.round(similarProduct.rating) }, () => '⭐').join('') }}
+                  </span>
+                  <small class="text-muted">({{ similarProduct.rating?.toFixed(1) }})</small>
+                </div>
+                
+                <div class="mt-auto">
+                  <div v-if="similarProduct.discountPercentage > 0">
+                    <small class="text-decoration-line-through text-muted">${{ similarProduct.price }}</small>
+                    <div class="h6 text-danger mb-0">
+                      ${{ (similarProduct.price - (similarProduct.price * similarProduct.discountPercentage / 100)).toFixed(2) }}
+                    </div>
+                  </div>
+                  <div v-else>
+                    <div class="h6 text-dark mb-0">${{ similarProduct.price }}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -371,8 +396,11 @@ watch(() => route.params.id, (newId, oldId) => {
         </div>
         
         <!-- No products found -->
-        <div v-else class="no-similar-products">
-          <p>No other products found in this category.</p>
+        <div v-else class="text-center py-5">
+          <div class="text-muted">
+            <i class="bi bi-box" style="font-size: 3rem;"></i>
+            <p class="mt-3">No other products found in this category.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -380,649 +408,55 @@ watch(() => route.params.id, (newId, oldId) => {
 </template>
 
 <style scoped>
-.product-detail {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.loading-state,
-.error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  text-align: center;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.error-state h3 {
-  color: #e74c3c;
-  margin-bottom: 0.5rem;
-}
-
-.error-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.header-actions {
-  margin-bottom: 2rem;
-}
-
-.back-button {
-  background: transparent;
-  border: 2px solid #667eea;
-  color: #667eea;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.back-button:hover {
-  background: #667eea;
-  color: white;
-}
-
-.product-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  margin-bottom: 4rem;
-}
-
-.product-images {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.main-image {
-  position: relative;
-  width: 100%;
-  height: 500px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
+/* Main product image styling */
 .main-product-image {
-  width: 100%;
-  height: 100%;
+  height: 500px;
   object-fit: cover;
 }
 
-.discount-badge {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 25px;
-  font-weight: 700;
-  font-size: 1rem;
-  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-}
-
-.thumbnail-images {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-}
-
+/* Thumbnail images */
 .thumbnail-image {
   width: 80px;
   height: 80px;
   object-fit: cover;
-  border-radius: 8px;
   cursor: pointer;
   border: 2px solid transparent;
   transition: all 0.3s ease;
-  flex-shrink: 0;
 }
 
-.thumbnail-image:hover,
-.thumbnail-image.active {
-  border-color: #667eea;
+.thumbnail-image:hover {
+  border-color: var(--bs-primary);
   transform: scale(1.05);
 }
 
-.product-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+/* Stock status badges */
+.badge.in-stock {
+  background-color: var(--bs-success) !important;
 }
 
-.product-category {
-  color: #667eea;
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.badge.low-stock {
+  background-color: var(--bs-warning) !important;
 }
 
-.product-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-  line-height: 1.2;
-  margin: 0;
+.badge.out-of-stock {
+  background-color: var(--bs-danger) !important;
 }
 
-.product-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.stars {
-  font-size: 1.25rem;
-  letter-spacing: 2px;
-}
-
-.rating-text {
-  color: #666;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.price-section {
-  padding: 1.5rem 0;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-
-.price-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.original-price {
-  font-size: 1.1rem;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.discounted-price {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #e74c3c;
-}
-
-.current-price {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.discount-text {
-  color: #e74c3c;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.stock-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.stock-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.stock-badge.in-stock {
-  background-color: #27ae60;
-  color: white;
-}
-
-.stock-badge.low-stock {
-  background-color: #f39c12;
-  color: white;
-}
-
-.stock-badge.out-of-stock {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.stock-count {
-  color: #666;
-  font-size: 0.95rem;
-}
-
-.description h3,
-.product-details h3,
-.product-tags h3 {
-  font-size: 1.3rem;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.description p {
-  color: #555;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.detail-item {
-  color: #555;
-  font-size: 0.95rem;
-}
-
-.detail-item strong {
-  color: #2c3e50;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.tag {
-  background: #f8f9fa;
-  color: #667eea;
-  padding: 0.4rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border: 1px solid #e9ecef;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.add-to-cart-btn,
-.wishlist-btn {
-  flex: 1;
-  padding: 1rem 2rem;
-  border-radius: 25px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.add-to-cart-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.add-to-cart-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.add-to-cart-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.wishlist-btn {
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
-}
-
-.wishlist-btn:hover {
-  background: #667eea;
-  color: white;
-}
-
-.retry-btn,
-.back-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.back-btn {
-  background: transparent;
-  color: #667eea;
-  border: 2px solid #667eea;
-}
-
-.back-btn:hover {
-  background: #667eea;
-  color: white;
-}
-
-.reviews-section {
-  margin-top: 4rem;
-  padding-top: 3rem;
-  border-top: 2px solid #eee;
-}
-
-.reviews-section h3 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 2rem;
-  font-weight: 600;
-}
-
-.reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.review-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #667eea;
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.reviewer-name {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.review-rating {
-  font-size: 0.9rem;
-}
-
-.review-comment {
-  color: #555;
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-  font-style: italic;
-}
-
-.review-date {
-  color: #999;
-  font-size: 0.85rem;
-}
-
-/* Benzer Ürünler Bölümü */
-.similar-products-section {
-  margin-top: 4rem;
-  padding-top: 3rem;
-  border-top: 2px solid #eee;
-}
-
-.similar-products-section h3 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 2rem;
-  font-weight: 600;
-}
-
-.similar-loading,
-.similar-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem 0;
-  text-align: center;
-}
-
-.similar-loading .loading-spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-.similar-error p {
-  color: #e74c3c;
-  margin-bottom: 1rem;
-}
-
-.retry-similar-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.retry-similar-btn:hover {
-  background: #5a6fd8;
-}
-
-.similar-products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.similar-product-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 1px solid #f0f0f0;
-}
-
+/* Similar product card hover effect */
 .similar-product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
-.similar-product-image {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-}
-
-.similar-product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.similar-product-card:hover .similar-product-image img {
-  transform: scale(1.05);
-}
-
-.similar-discount-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.75rem;
-  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
-}
-
-.similar-product-info {
-  padding: 1rem;
-}
-
-.similar-product-category {
-  color: #667eea;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
-}
-
-.similar-product-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.similar-product-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.similar-stars {
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-}
-
-.similar-rating-text {
-  color: #666;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.similar-product-price {
-  margin-top: auto;
-}
-
-.similar-price-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.similar-original-price {
-  font-size: 0.8rem;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.similar-discounted-price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #e74c3c;
-}
-
-.similar-current-price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.no-similar-products {
-  text-align: center;
-  padding: 3rem 0;
-  color: #666;
-  font-style: italic;
-}
-
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .similar-products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-  
-  .similar-product-image {
-    height: 150px;
-  }
-  
-  .similar-products-section h3 {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .product-detail {
-    padding: 1rem;
-  }
-
-  .product-layout {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .product-title {
-    font-size: 1.8rem;
-  }
-
-  .main-image {
+  .main-product-image {
     height: 300px;
   }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .discounted-price,
-  .current-price {
-    font-size: 2rem;
-  }
-
-  .reviews-grid {
-    grid-template-columns: 1fr;
+  
+  .thumbnail-image {
+    width: 60px;
+    height: 60px;
   }
 }
 </style>

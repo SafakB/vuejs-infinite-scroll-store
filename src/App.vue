@@ -4,11 +4,11 @@
 
 <template>
   <div id="app">
-    <header class="header">
+    <header class="bg-primary text-white py-4 mb-4">
       <div class="container">
-        <router-link to="/" class="header-link">
-          <h1 class="title">Product Store</h1>
-          <p class="subtitle">Discover the highest quality products</p>
+        <router-link to="/" class="text-decoration-none text-white">
+          <h1 class="display-4 fw-bold mb-1">Product Store</h1>
+          <p class="lead mb-0">Discover the highest quality products</p>
         </router-link>
       </div>
     </header>
@@ -19,90 +19,51 @@
       </div>
     </main>
     
-    <footer class="footer">
+    <footer class="bg-dark text-white text-center py-4 mt-5">
       <div class="container">
-        <p>&copy; 2025 Product Store. All rights reserved.</p>
+        <p class="mb-0">&copy; 2025 Product Store. All rights reserved.</p>
       </div>
     </footer>
   </div>
 </template>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Global overrides to maintain scroll behavior for the app */
+html {
+  scroll-behavior: auto !important;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f8f9fa;
+.no-scroll-behavior {
+  scroll-behavior: auto !important;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+.no-scroll-behavior * {
+  scroll-behavior: auto !important;
 }
 
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 3rem 0;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.header-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: all 0.3s ease;
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
 }
 
-.header-link:hover {
-  transform: translateY(-2px);
+/* Custom Bootstrap theme colors - maintaining original gradient */
+:root {
+  --bs-primary-rgb: 102, 126, 234;
+  --bs-primary: #667eea;
 }
 
-.title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+.bg-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 
-.subtitle {
-  font-size: 1.2rem;
+/* Hover effects */
+header a:hover {
   opacity: 0.9;
-  font-weight: 300;
-}
-
-.main {
-  min-height: 70vh;
-  padding: 2rem 0;
-}
-
-.footer {
-  background-color: #343a40;
-  color: white;
-  text-align: center;
-  padding: 2rem 0;
-  margin-top: 3rem;
-}
-
-@media (max-width: 768px) {
-  .title {
-    font-size: 2rem;
-  }
-  
-  .subtitle {
-    font-size: 1rem;
-  }
-  
-  .container {
-    padding: 0 15px;
-  }
+  transition: opacity 0.3s ease;
 }
 </style>

@@ -31,63 +31,69 @@ const starRating = computed(() => {
   return Array.from({ length: 5 }, (_, i) => i < rating ? '⭐' : '☆').join('')
 })
 
-// Stock status
+// Stock status with Bootstrap classes
 const stockStatus = computed(() => {
-  if (props.product.stock > 20) return { text: 'In Stock', class: 'in-stock' }
-  if (props.product.stock > 0) return { text: 'Low Stock', class: 'low-stock' }
-  return { text: 'Out of Stock', class: 'out-of-stock' }
+  if (props.product.stock > 20) return { text: 'In Stock', class: 'bg-success' }
+  if (props.product.stock > 0) return { text: 'Low Stock', class: 'bg-warning' }
+  return { text: 'Out of Stock', class: 'bg-danger' }
 })
 </script>
 
 <template>
-  <div class="product-card" @click="goToProductDetail">
-    <div class="product-image-container">
+  <div class="card h-100 shadow-sm product-card" @click="goToProductDetail">
+    <div class="position-relative">
       <img 
         :src="product.thumbnail" 
         :alt="product.title"
-        class="product-image"
+        class="card-img-top product-image"
         loading="lazy"
       />
-      <div v-if="product.discountPercentage > 0" class="discount-badge">
-        -%{{ Math.round(product.discountPercentage) }}
+      <div v-if="product.discountPercentage > 0" class="position-absolute top-0 start-0 m-2">
+        <span class="badge bg-danger fs-6">
+          -{{ Math.round(product.discountPercentage) }}%
+        </span>
       </div>
-      <div class="stock-badge" :class="stockStatus.class">
-        {{ stockStatus.text }}
+      <div class="position-absolute top-0 end-0 m-2">
+        <span class="badge" :class="stockStatus.class">
+          {{ stockStatus.text }}
+        </span>
       </div>
     </div>
     
-    <div class="product-content">
-      <div class="product-category">{{ product.category }}</div>
-      <h3 class="product-title">{{ product.title }}</h3>
-      <p class="product-description">{{ product.description }}</p>
+    <div class="card-body d-flex flex-column">
+      <small class="text-primary text-uppercase fw-bold mb-1">{{ product.category }}</small>
+      <h5 class="card-title">{{ product.title }}</h5>
+      <p class="card-text text-muted small">{{ product.description }}</p>
       
-      <div class="product-rating">
-        <span class="stars">{{ starRating }}</span>
-        <span class="rating-text">({{ product.rating.toFixed(1) }})</span>
+      <div class="mb-2">
+        <span class="text-warning me-2">{{ starRating }}</span>
+        <small class="text-muted">({{ product.rating.toFixed(1) }})</small>
       </div>
       
-      <div class="product-details">
-        <div class="brand" v-if="product.brand">
+      <div class="row g-2 mb-3 small">
+        <div class="col-12" v-if="product.brand">
           <strong>Brand:</strong> {{ product.brand }}
         </div>
-        <div class="availability">
+        <div class="col-12">
           <strong>Status:</strong> {{ product.availabilityStatus }}
         </div>
       </div>
       
-      <div class="product-footer">
-        <div class="price-section">
-          <div v-if="product.discountPercentage > 0" class="price-container">
-            <span class="original-price">${{ product.price }}</span>
-            <span class="discounted-price">${{ discountedPrice }}</span>
-          </div>
-          <div v-else class="price-container">
-            <span class="current-price">${{ product.price }}</span>
+      <div class="mt-auto">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="price-section">
+            <div v-if="product.discountPercentage > 0">
+              <small class="text-decoration-line-through text-muted">${{ product.price }}</small>
+              <div class="h5 text-danger mb-0">${{ discountedPrice }}</div>
+            </div>
+            <div v-else>
+              <div class="h5 text-dark mb-0">${{ product.price }}</div>
+            </div>
           </div>
         </div>
         
         <button 
-          class="add-to-cart-btn" 
+          class="btn btn-primary w-100" 
           :disabled="product.stock === 0"
           @click.stop="$event.preventDefault()"
         >
@@ -101,33 +107,18 @@ const stockStatus = computed(() => {
 
 <style scoped>
 .product-card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
   cursor: pointer;
+  transition: all 0.3s ease;
+  border: none !important;
 }
 
 .product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-}
-
-.product-image-container {
-  position: relative;
-  width: 100%;
-  height: 250px;
-  overflow: hidden;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
 }
 
 .product-image {
-  width: 100%;
-  height: 100%;
+  height: 250px;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -136,204 +127,44 @@ const stockStatus = computed(() => {
   transform: scale(1.05);
 }
 
-.discount-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
-}
-
-.stock-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
+.card-title {
+  font-size: 1.1rem;
   font-weight: 600;
-  text-transform: uppercase;
-}
-
-.stock-badge.in-stock {
-  background-color: #27ae60;
-  color: white;
-}
-
-.stock-badge.low-stock {
-  background-color: #f39c12;
-  color: white;
-}
-
-.stock-badge.out-of-stock {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.product-content {
-  padding: 1.5rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.product-category {
-  color: #667eea;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
-}
-
-.product-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 0.75rem;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.product-description {
-  color: #666;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
+.card-text {
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-height: 1.4;
 }
 
-.product-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+.btn:disabled {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
 }
 
-.stars {
-  font-size: 1rem;
-  letter-spacing: 1px;
-}
-
-.rating-text {
-  color: #666;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.product-details {
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
-}
-
-.product-details > div {
-  margin-bottom: 0.25rem;
-  color: #555;
-}
-
-.product-footer {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
-}
-
-.price-section {
-  flex: 1;
-}
-
-.price-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.original-price {
-  font-size: 0.9rem;
-  color: #999;
-  text-decoration: line-through;
-}
-
-.discounted-price {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #e74c3c;
-}
-
-.current-price {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.add-to-cart-btn {
+/* Custom button styling to match original design */
+.btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  font-size: 0.9rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  min-width: 120px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.add-to-cart-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.add-to-cart-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.add-to-cart-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-  box-shadow: none;
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
-  .product-content {
-    padding: 1.25rem;
-  }
-  
-  .product-title {
-    font-size: 1.1rem;
-  }
-  
-  .product-description {
-    font-size: 0.9rem;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-  }
-  
-  .product-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  
-  .add-to-cart-btn {
-    width: 100%;
-    min-width: auto;
+  .product-image {
+    height: 200px;
   }
 }
 </style>

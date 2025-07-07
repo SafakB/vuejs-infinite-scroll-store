@@ -8,7 +8,7 @@
 }
 
 html {
-  /* Scroll behavior'ı manuel kontrol edeceğiz */
+  /* Manual scroll control - disable smooth scrolling */
   scroll-behavior: auto !important;
 }
 
@@ -16,6 +16,7 @@ html.no-scroll-behavior {
   scroll-behavior: auto !important;
 }
 
+/* Bootstrap overrides and utilities */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
@@ -23,13 +24,6 @@ body {
   background-color: #f8f9fa;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Utility classes */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
 }
 
 /* Focus styles for accessibility */
