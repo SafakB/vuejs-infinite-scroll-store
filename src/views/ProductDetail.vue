@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { productApi } from '../services/api.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,19 +25,13 @@ const fetchProductDetail = async (id) => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
   
   try {
-    const response = await fetch(`https://dummyjson.com/products/${id}`)
-    
-    if (!response.ok) {
-      throw new Error('Product not found')
-    }
-    
-    const data = await response.json()
+    const data = await productApi.getProductById(id)
     product.value = data
     
     // Load similar products after product is loaded
     if (data.title) {
       const firstWord = data.title.split(' ')[0]
-      fetchSimilarProducts(firstWord, data.id)
+      await fetchSimilarProducts(firstWord, data.id)
     }
     
   } catch (err) {
@@ -53,21 +48,10 @@ const fetchSimilarProducts = async (searchTerm, currentProductId) => {
   similarError.value = null
   
   try {
-    // Search by first word of product name
-    const response = await fetch(`https://dummyjson.com/products/search?q=${encodeURIComponent(searchTerm)}&limit=12`)
+    const products = await productApi.getSimilarProducts(searchTerm, currentProductId, 8)
+    similarProducts.value = products
     
-    if (!response.ok) {
-      throw new Error('Similar products could not be loaded')
-    }
-    
-    const data = await response.json()
-    
-    // Remove current product and show maximum 8 products
-    similarProducts.value = data.products
-      .filter(p => p.id !== parseInt(currentProductId))
-      .slice(0, 8)
-    
-    console.log(`Found ${similarProducts.value.length} similar products for "${searchTerm}"`)
+    console.log(`Found ${products.length} similar products for "${searchTerm}"`)
     
   } catch (err) {
     similarError.value = err.message

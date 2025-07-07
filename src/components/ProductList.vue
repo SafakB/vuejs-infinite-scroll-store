@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import ProductCard from './ProductCard.vue'
 import { productStore } from '../stores/productStore.js'
+import { productApi } from '../services/api.js'
 
 const router = useRouter()
 const loading = ref(false)
@@ -35,7 +36,7 @@ const updateScrollPosition = () => {
   }
 }
 
-// API'den ürünleri getir
+// Get products from API
 const fetchProducts = async (skip = 0, isInitialLoad = false) => {
   if (loading.value) return
   
@@ -43,13 +44,7 @@ const fetchProducts = async (skip = 0, isInitialLoad = false) => {
   error.value = null
   
   try {
-    const response = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`)
-    
-    if (!response.ok) {
-      throw new Error('Products could not be loaded')
-    }
-    
-    const data = await response.json()
+    const data = await productApi.getProducts(limit, skip)
     
     console.log('API Response:', data.products.length, 'products received')
     console.log('Store before:', productStore.products.length)

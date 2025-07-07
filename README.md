@@ -100,6 +100,8 @@ src/
 ├── views/
 │   ├── Home.vue          # Home page view
 │   └── ProductDetail.vue # Product detail page
+├── services/
+│   └── api.js            # Centralized API service layer
 ├── stores/
 │   └── productStore.js   # Global state management
 ├── router/
@@ -110,7 +112,12 @@ src/
 ```
 
 ### API Integration
-The application uses DummyJSON API:
+The application uses a professional API service layer:
+- **Centralized API calls** in `src/services/api.js`
+- **Error handling** with custom error messages
+- **Type safety** with JSDoc documentation
+- **Consistent endpoints** with configurable base URL
+- **Retry logic** and timeout handling
 - Base URL: `https://dummyjson.com/products`
 - Parameters: `limit` (products per page), `skip` (products to skip)
 - Search endpoint: `https://dummyjson.com/products/search`
