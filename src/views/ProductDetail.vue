@@ -20,20 +20,20 @@ const fetchProductDetail = async (id) => {
   loading.value = true
   error.value = null
   
-  // Sayfa üstüne scroll et
+  // Scroll to top of page
   window.scrollTo({ top: 0, behavior: 'smooth' })
   
   try {
     const response = await fetch(`https://dummyjson.com/products/${id}`)
     
     if (!response.ok) {
-      throw new Error('Ürün bulunamadı')
+      throw new Error('Product not found')
     }
     
     const data = await response.json()
     product.value = data
     
-    // Ürün yüklendikten sonra benzer ürünleri getir
+    // Load similar products after product is loaded
     if (data.title) {
       const firstWord = data.title.split(' ')[0]
       fetchSimilarProducts(firstWord, data.id)
@@ -41,100 +41,100 @@ const fetchProductDetail = async (id) => {
     
   } catch (err) {
     error.value = err.message
-    console.error('Ürün detay yükleme hatası:', err)
+    console.error('Product detail loading error:', err)
   } finally {
     loading.value = false
   }
 }
 
-// Benzer ürünleri getir
+// Get similar products
 const fetchSimilarProducts = async (searchTerm, currentProductId) => {
   similarLoading.value = true
   similarError.value = null
   
   try {
-    // Ürün adının ilk kelimesi ile arama yap
+    // Search by first word of product name
     const response = await fetch(`https://dummyjson.com/products/search?q=${encodeURIComponent(searchTerm)}&limit=12`)
     
     if (!response.ok) {
-      throw new Error('Benzer ürünler yüklenemedi')
+      throw new Error('Similar products could not be loaded')
     }
     
     const data = await response.json()
     
-    // Mevcut ürünü çıkar ve maksimum 8 ürün göster
+    // Remove current product and show maximum 8 products
     similarProducts.value = data.products
       .filter(p => p.id !== parseInt(currentProductId))
       .slice(0, 8)
     
-    console.log(`"${searchTerm}" aramasında ${similarProducts.value.length} benzer ürün bulundu`)
+    console.log(`Found ${similarProducts.value.length} similar products for "${searchTerm}"`)
     
   } catch (err) {
     similarError.value = err.message
-    console.error('Benzer ürün yükleme hatası:', err)
+    console.error('Similar products loading error:', err)
   } finally {
     similarLoading.value = false
   }
 }
 
-// İndirimli fiyatı hesapla
+// Calculate discounted price
 const discountedPrice = computed(() => {
   if (!product.value || product.value.discountPercentage <= 0) return null
   const discount = product.value.price * (product.value.discountPercentage / 100)
   return (product.value.price - discount).toFixed(2)
 })
 
-// Yıldız derecelendirmesi
+// Star rating
 const starRating = computed(() => {
   if (!product.value) return ''
   const rating = Math.round(product.value.rating)
   return Array.from({ length: 5 }, (_, i) => i < rating ? '⭐' : '☆').join('')
 })
 
-// Stok durumu
+// Stock status
 const stockStatus = computed(() => {
   if (!product.value) return { text: '', class: '' }
-  if (product.value.stock > 20) return { text: 'Stokta', class: 'in-stock' }
-  if (product.value.stock > 0) return { text: 'Az stokta', class: 'low-stock' }
-  return { text: 'Stokta yok', class: 'out-of-stock' }
+  if (product.value.stock > 20) return { text: 'In Stock', class: 'in-stock' }
+  if (product.value.stock > 0) return { text: 'Low Stock', class: 'low-stock' }
+  return { text: 'Out of Stock', class: 'out-of-stock' }
 })
 
-// Ana sayfaya dön
+// Go back to home page
 const goBack = () => {
   router.push('/')
 }
 
-// Görsel seçimi
+// Image selection
 const selectImage = (index) => {
   selectedImageIndex.value = index
 }
 
-// Benzer ürüne git
+// Go to similar product
 const goToProduct = (productId) => {
-  // Mevcut ürün state'ini temizle
+  // Clear current product state
   product.value = null
   similarProducts.value = []
   selectedImageIndex.value = 0
   
-  // Yeni ürüne git
+  // Navigate to new product
   router.push(`/product/${productId}`)
 }
 
-// Component mount olduğunda
+// When component is mounted
 onMounted(() => {
   const productId = route.params.id
   if (productId) {
     fetchProductDetail(productId)
-    // Sayfa üstüne scroll et
+    // Scroll to top of page
     window.scrollTo(0, 0)
   }
 })
 
-// Route parametresi değiştiğinde yeni ürünü yükle
+// Load new product when route parameter changes
 watch(() => route.params.id, (newId, oldId) => {
   if (newId && newId !== oldId) {
     fetchProductDetail(newId)
-    // Sayfa üstüne scroll et
+    // Scroll to top of page
     window.scrollTo(0, 0)
   }
 })
@@ -142,29 +142,29 @@ watch(() => route.params.id, (newId, oldId) => {
 
 <template>
   <div class="product-detail">
-    <!-- Loading durumu -->
+    <!-- Loading state -->
     <div v-if="loading" class="loading-state">
       <div class="loading-spinner"></div>
-      <p>Ürün bilgileri yükleniyor...</p>
+      <p>Loading product information...</p>
     </div>
 
-    <!-- Hata durumu -->
+    <!-- Error state -->
     <div v-else-if="error" class="error-state">
       <div class="error-icon">⚠️</div>
-      <h3>Bir hata oluştu</h3>
+      <h3>An error occurred</h3>
       <p>{{ error }}</p>
       <div class="error-actions">
-        <button @click="fetchProductDetail(route.params.id)" class="retry-btn">Tekrar Dene</button>
-        <button @click="goBack" class="back-btn">Ana Sayfaya Dön</button>
+        <button @click="fetchProductDetail(route.params.id)" class="retry-btn">Try Again</button>
+        <button @click="goBack" class="back-btn">Back to Home</button>
       </div>
     </div>
 
-    <!-- Ürün detayı -->
+    <!-- Product detail -->
     <div v-else-if="product" class="product-content">
-      <!-- Geri dön butonu -->
+      <!-- Back button -->
       <div class="header-actions">
         <button @click="goBack" class="back-button">
-          ← Ana Sayfaya Dön
+          ← Back to Home
         </button>
       </div>
 
@@ -182,7 +182,7 @@ watch(() => route.params.id, (newId, oldId) => {
             </div>
           </div>
           
-          <!-- Küçük resimler -->
+          <!-- Thumbnail images -->
           <div v-if="product.images && product.images.length > 1" class="thumbnail-images">
             <img 
               v-for="(image, index) in product.images" 
@@ -196,7 +196,7 @@ watch(() => route.params.id, (newId, oldId) => {
           </div>
         </div>
 
-        <!-- Ürün bilgileri -->
+        <!-- Product information -->
         <div class="product-info">
           <div class="product-category">{{ product.category }}</div>
           <h1 class="product-title">{{ product.title }}</h1>
@@ -207,69 +207,69 @@ watch(() => route.params.id, (newId, oldId) => {
             <span class="rating-text">({{ product.rating?.toFixed(1) }})</span>
           </div>
 
-          <!-- Fiyat -->
+          <!-- Price -->
           <div class="price-section">
             <div v-if="discountedPrice" class="price-container">
               <span class="original-price">${{ product.price }}</span>
               <span class="discounted-price">${{ discountedPrice }}</span>
-              <span class="discount-text">%{{ Math.round(product.discountPercentage) }} indirim</span>
+              <span class="discount-text">{{ Math.round(product.discountPercentage) }}% off</span>
             </div>
             <div v-else class="price-container">
               <span class="current-price">${{ product.price }}</span>
             </div>
           </div>
 
-          <!-- Stok durumu -->
+          <!-- Stock status -->
           <div class="stock-info">
             <span class="stock-badge" :class="stockStatus.class">
               {{ stockStatus.text }}
             </span>
             <span class="stock-count" v-if="product.stock > 0">
-              {{ product.stock }} adet mevcut
+              {{ product.stock }} in stock
             </span>
           </div>
 
-          <!-- Açıklama -->
+          <!-- Description -->
           <div class="description">
-            <h3>Ürün Açıklaması</h3>
+            <h3>Product Description</h3>
             <p>{{ product.description }}</p>
           </div>
 
-          <!-- Ürün detayları -->
+          <!-- Product details -->
           <div class="product-details">
-            <h3>Ürün Bilgileri</h3>
+            <h3>Product Information</h3>
             <div class="details-grid">
               <div class="detail-item" v-if="product.brand">
-                <strong>Marka:</strong> {{ product.brand }}
+                <strong>Brand:</strong> {{ product.brand }}
               </div>
               <div class="detail-item" v-if="product.sku">
                 <strong>SKU:</strong> {{ product.sku }}
               </div>
               <div class="detail-item" v-if="product.weight">
-                <strong>Ağırlık:</strong> {{ product.weight }}g
+                <strong>Weight:</strong> {{ product.weight }}g
               </div>
               <div class="detail-item" v-if="product.dimensions">
-                <strong>Boyutlar:</strong> 
+                <strong>Dimensions:</strong> 
                 {{ product.dimensions.width }}×{{ product.dimensions.height }}×{{ product.dimensions.depth }} cm
               </div>
               <div class="detail-item" v-if="product.warrantyInformation">
-                <strong>Garanti:</strong> {{ product.warrantyInformation }}
+                <strong>Warranty:</strong> {{ product.warrantyInformation }}
               </div>
               <div class="detail-item" v-if="product.shippingInformation">
-                <strong>Kargo:</strong> {{ product.shippingInformation }}
+                <strong>Shipping:</strong> {{ product.shippingInformation }}
               </div>
               <div class="detail-item">
-                <strong>Durum:</strong> {{ product.availabilityStatus }}
+                <strong>Status:</strong> {{ product.availabilityStatus }}
               </div>
               <div class="detail-item" v-if="product.minimumOrderQuantity">
-                <strong>Min. Sipariş:</strong> {{ product.minimumOrderQuantity }} adet
+                <strong>Min. Order:</strong> {{ product.minimumOrderQuantity }} pieces
               </div>
             </div>
           </div>
 
           <!-- Tags -->
           <div v-if="product.tags && product.tags.length > 0" class="product-tags">
-            <h3>Etiketler</h3>
+            <h3>Tags</h3>
             <div class="tags">
               <span v-for="tag in product.tags" :key="tag" class="tag">
                 {{ tag }}
@@ -277,22 +277,22 @@ watch(() => route.params.id, (newId, oldId) => {
             </div>
           </div>
 
-          <!-- Aksiyon butonları -->
+          <!-- Action buttons -->
           <div class="action-buttons">
             <button class="add-to-cart-btn" :disabled="product.stock === 0">
-              <span v-if="product.stock > 0">Sepete Ekle</span>
-              <span v-else>Stokta Yok</span>
+              <span v-if="product.stock > 0">Add to Cart</span>
+              <span v-else>Out of Stock</span>
             </button>
             <button class="wishlist-btn">
-              ♥ Favorilere Ekle
+              ♥ Add to Favorites
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Yorumlar -->
+      <!-- Reviews -->
       <div v-if="product.reviews && product.reviews.length > 0" class="reviews-section">
-        <h3>Müşteri Yorumları</h3>
+        <h3>Customer Reviews</h3>
         <div class="reviews-grid">
           <div v-for="review in product.reviews" :key="review.date" class="review-card">
             <div class="review-header">
@@ -302,30 +302,30 @@ watch(() => route.params.id, (newId, oldId) => {
               </span>
             </div>
             <p class="review-comment">{{ review.comment }}</p>
-            <span class="review-date">{{ new Date(review.date).toLocaleDateString('tr-TR') }}</span>
+            <span class="review-date">{{ new Date(review.date).toLocaleDateString('en-US') }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Benzer Ürünler -->
+      <!-- Similar Products -->
       <div class="similar-products-section">
-        <h3>Benzer Ürünler</h3>
+        <h3>Similar Products</h3>
         
-        <!-- Loading durumu -->
+        <!-- Loading state -->
         <div v-if="similarLoading" class="similar-loading">
           <div class="loading-spinner"></div>
-          <p>Benzer ürünler yükleniyor...</p>
+          <p>Loading similar products...</p>
         </div>
         
-        <!-- Hata durumu -->
+        <!-- Error state -->
         <div v-else-if="similarError" class="similar-error">
           <p>{{ similarError }}</p>
           <button @click="fetchSimilarProducts(product.category, product.id)" class="retry-similar-btn">
-            Tekrar Dene
+            Try Again
           </button>
         </div>
         
-        <!-- Ürün listesi -->
+        <!-- Product list -->
         <div v-else-if="similarProducts.length > 0" class="similar-products-grid">
           <div 
             v-for="similarProduct in similarProducts" 
@@ -370,9 +370,9 @@ watch(() => route.params.id, (newId, oldId) => {
           </div>
         </div>
         
-        <!-- Ürün bulunamadı -->
+        <!-- No products found -->
         <div v-else class="no-similar-products">
-          <p>Bu kategoride başka ürün bulunamadı.</p>
+          <p>No other products found in this category.</p>
         </div>
       </div>
     </div>

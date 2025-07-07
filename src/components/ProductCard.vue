@@ -11,12 +11,12 @@ const props = defineProps({
   }
 })
 
-// Ürün detayına git
+// Go to product detail
 const goToProductDetail = () => {
   router.push(`/product/${props.product.id}`)
 }
 
-// İndirimli fiyatı hesapla
+// Calculate discounted price
 const discountedPrice = computed(() => {
   if (props.product.discountPercentage > 0) {
     const discount = props.product.price * (props.product.discountPercentage / 100)
@@ -25,17 +25,17 @@ const discountedPrice = computed(() => {
   return props.product.price
 })
 
-// Yıldız derecelendirmesi
+// Star rating
 const starRating = computed(() => {
   const rating = Math.round(props.product.rating)
   return Array.from({ length: 5 }, (_, i) => i < rating ? '⭐' : '☆').join('')
 })
 
-// Stok durumu
+// Stock status
 const stockStatus = computed(() => {
-  if (props.product.stock > 20) return { text: 'Stokta', class: 'in-stock' }
-  if (props.product.stock > 0) return { text: 'Az stokta', class: 'low-stock' }
-  return { text: 'Stokta yok', class: 'out-of-stock' }
+  if (props.product.stock > 20) return { text: 'In Stock', class: 'in-stock' }
+  if (props.product.stock > 0) return { text: 'Low Stock', class: 'low-stock' }
+  return { text: 'Out of Stock', class: 'out-of-stock' }
 })
 </script>
 
@@ -68,10 +68,10 @@ const stockStatus = computed(() => {
       
       <div class="product-details">
         <div class="brand" v-if="product.brand">
-          <strong>Marka:</strong> {{ product.brand }}
+          <strong>Brand:</strong> {{ product.brand }}
         </div>
         <div class="availability">
-          <strong>Durum:</strong> {{ product.availabilityStatus }}
+          <strong>Status:</strong> {{ product.availabilityStatus }}
         </div>
       </div>
       
@@ -91,8 +91,8 @@ const stockStatus = computed(() => {
           :disabled="product.stock === 0"
           @click.stop="$event.preventDefault()"
         >
-          <span v-if="product.stock > 0">Detayları Gör</span>
-          <span v-else>Stokta Yok</span>
+          <span v-if="product.stock > 0">View Details</span>
+          <span v-else>Out of Stock</span>
         </button>
       </div>
     </div>

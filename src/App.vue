@@ -7,8 +7,8 @@
     <header class="header">
       <div class="container">
         <router-link to="/" class="header-link">
-          <h1 class="title">Ürün Mağazası</h1>
-          <p class="subtitle">En kaliteli ürünleri keşfedin</p>
+          <h1 class="title">Product Store</h1>
+          <p class="subtitle">Discover the highest quality products</p>
         </router-link>
       </div>
     </header>
@@ -21,7 +21,7 @@
     
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2025 Ürün Mağazası. Tüm hakları saklıdır.</p>
+        <p>&copy; 2025 Product Store. All rights reserved.</p>
       </div>
     </footer>
   </div>

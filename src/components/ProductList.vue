@@ -46,13 +46,13 @@ const fetchProducts = async (skip = 0, isInitialLoad = false) => {
     const response = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`)
     
     if (!response.ok) {
-      throw new Error('Ürünler yüklenemedi')
+      throw new Error('Products could not be loaded')
     }
     
     const data = await response.json()
     
-    console.log('API Response:', data.products.length, 'ürün alındı')
-    console.log('Store öncesi:', productStore.products.length)
+    console.log('API Response:', data.products.length, 'products received')
+    console.log('Store before:', productStore.products.length)
     
     // Store'a ekle
     if (isInitialLoad) {
@@ -62,14 +62,14 @@ const fetchProducts = async (skip = 0, isInitialLoad = false) => {
       productStore.addProducts(data.products, data.total)
     }
     
-    console.log('Store sonrası:', productStore.products.length)
+    console.log('Store after:', productStore.products.length)
     
-    // Local products'ı güncelle
+    // Update local products
     updateProducts()
     
   } catch (err) {
     error.value = err.message
-    console.error('Ürün yükleme hatası:', err)
+    console.error('Product loading error:', err)
   } finally {
     loading.value = false
   }
@@ -81,22 +81,22 @@ const handleScroll = () => {
   const windowHeight = window.innerHeight
   const documentHeight = document.documentElement.scrollHeight
   
-  // Current scroll position'ı güncelle
+  // Update current scroll position
   updateScrollPosition()
   
-  // Sayfanın %80'ine geldiğinde yeni ürünleri yükle
+  // Load new products when reaching 80% of page
   if (scrollTop + windowHeight >= documentHeight * 0.8 && hasMore() && !loading.value) {
     fetchProducts(currentSkip())
   }
 }
 
-// Yeniden yükle fonksiyonu
+// Retry function
 const retry = () => {
   error.value = null
   fetchProducts(currentSkip())
 }
 
-// Manual refresh (cache'i temizle)
+// Manual refresh (clear cache)
 const refreshProducts = () => {
   productStore.clearCache()
   updateProducts()
@@ -108,52 +108,52 @@ onMounted(async () => {
   // Initial scroll position'ı al
   updateScrollPosition()
   
-  // Eğer cache'de veri varsa, API'ye istek atmadan direkt kullan
+  // If data exists in cache, use it directly without API request
   if (productStore.hasCache()) {
-    console.log('Cache\'den ürünler yüklendi:', productStore.products.length)
+    console.log('Products loaded from cache:', productStore.products.length)
     updateProducts()
     
-    // Scroll behavior'ı geçici olarak kapat
+    // Temporarily disable scroll behavior
     document.documentElement.classList.add('no-scroll-behavior')
     
-    // Hemen scroll pozisyonunu restore et (animasyon yok)
-    console.log('Scroll restore ediliyor:', productStore.scrollPosition)
+    // Restore scroll position immediately (no animation)
+    console.log('Restoring scroll position:', productStore.scrollPosition)
     
-    // Birden fazla yöntemle scroll restore
+    // Multiple methods for scroll restore
     window.scrollTo(0, productStore.scrollPosition)
     document.documentElement.scrollTop = productStore.scrollPosition
     document.body.scrollTop = productStore.scrollPosition
     
-    // DOM render edildikten sonra tekrar dene
+    // Try again after DOM rendering
     await nextTick()
     productStore.restoreScrollPosition()
     
-    // Son olarak bir daha dene (çok uzun listeler için)
+    // Try one more time (for very long lists)
     setTimeout(() => {
       productStore.restoreScrollPosition()
       updateScrollPosition()
       
-      // Scroll behavior'ı geri aç
+      // Re-enable scroll behavior
       document.documentElement.classList.remove('no-scroll-behavior')
     }, 200)
     
   } else {
-    // Cache yoksa API'den yükle
-    console.log('API\'den ilk yükleme yapılıyor')
+    // Load from API if no cache
+    console.log('Initial loading from API')
     await fetchProducts(0, true)
   }
   
-  // Scroll listener'ı ekle
+  // Add scroll listener
   window.addEventListener('scroll', handleScroll)
 })
 
-// Component unmount olduğunda scroll pozisyonunu kaydet
+// Save scroll position when component unmounts
 onBeforeUnmount(() => {
   productStore.saveScrollPosition()
-  console.log('Scroll pozisyonu kaydedildi:', productStore.scrollPosition)
+  console.log('Scroll position saved:', productStore.scrollPosition)
 })
 
-// Component unmount olduğunda
+// When component unmounts
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
@@ -161,29 +161,29 @@ onUnmounted(() => {
 
 <template>
   <div class="product-list">
-    <!-- Debug info (development için) -->
+    <!-- Debug info (for development) -->
     <div v-if="true" class="debug-info">
       <div>
-        <p>Store: {{ store.products.length }} ürün | Local: {{ products.length }} ürün</p>
+        <p>Store: {{ store.products.length }} products | Local: {{ products.length }} products</p>
         <p>
-          Kaydedilen: {{ Math.round(store.scrollPosition) }}px | Mevcut: {{ Math.round(currentScrollPos) }}px
+          Saved: {{ Math.round(store.scrollPosition) }}px | Current: {{ Math.round(currentScrollPos) }}px
           <span :class="{ 'success': scrollRestoreSuccess, 'error': !scrollRestoreSuccess }" class="restore-status">
             {{ scrollRestoreSuccess ? '✅' : '❌' }}
           </span>
         </p>
       </div>
-      <button @click="refreshProducts" class="refresh-btn">🔄 Yenile</button>
+      <button @click="refreshProducts" class="refresh-btn">🔄 Refresh</button>
     </div>
     
-    <!-- Hata durumu -->
+    <!-- Error state -->
     <div v-if="error && store.products.length === 0" class="error-state">
       <div class="error-icon">⚠️</div>
-      <h3>Bir hata oluştu</h3>
+      <h3>An error occurred</h3>
       <p>{{ error }}</p>
-      <button @click="retry" class="retry-btn">Tekrar Dene</button>
+      <button @click="retry" class="retry-btn">Try Again</button>
     </div>
     
-    <!-- Ürün listesi -->
+    <!-- Product list -->
     <div v-else>
       <div class="products-grid">
         <ProductCard 
@@ -193,21 +193,21 @@ onUnmounted(() => {
         />
       </div>
       
-      <!-- Yükleniyor durumu -->
+      <!-- Loading state -->
       <div v-if="loading" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>Ürünler yükleniyor...</p>
+        <p>Loading products...</p>
       </div>
       
-      <!-- Hata durumu (daha fazla ürün yüklenirken) -->
+      <!-- Error state (while loading more products) -->
       <div v-if="error && store.products.length > 0" class="load-more-error">
         <p>{{ error }}</p>
-        <button @click="retry" class="retry-btn">Tekrar Dene</button>
+        <button @click="retry" class="retry-btn">Try Again</button>
       </div>
       
-      <!-- Tüm ürünler yüklendi -->
+      <!-- All products loaded -->
       <div v-if="!hasMore() && store.products.length > 0" class="end-message">
-        <p>Tüm ürünler yüklendi 🎉</p>
+        <p>All products loaded 🎉</p>
       </div>
     </div>
   </div>
