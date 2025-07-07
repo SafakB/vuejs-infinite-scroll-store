@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
   product: {
@@ -7,6 +10,11 @@ const props = defineProps({
     required: true
   }
 })
+
+// Ürün detayına git
+const goToProductDetail = () => {
+  router.push(`/product/${props.product.id}`)
+}
 
 // İndirimli fiyatı hesapla
 const discountedPrice = computed(() => {
@@ -32,7 +40,7 @@ const stockStatus = computed(() => {
 </script>
 
 <template>
-  <div class="product-card">
+  <div class="product-card" @click="goToProductDetail">
     <div class="product-image-container">
       <img 
         :src="product.thumbnail" 
@@ -78,8 +86,12 @@ const stockStatus = computed(() => {
           </div>
         </div>
         
-        <button class="add-to-cart-btn" :disabled="product.stock === 0">
-          <span v-if="product.stock > 0">Sepete Ekle</span>
+        <button 
+          class="add-to-cart-btn" 
+          :disabled="product.stock === 0"
+          @click.stop="$event.preventDefault()"
+        >
+          <span v-if="product.stock > 0">Detayları Gör</span>
           <span v-else>Stokta Yok</span>
         </button>
       </div>
@@ -98,6 +110,7 @@ const stockStatus = computed(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .product-card:hover {

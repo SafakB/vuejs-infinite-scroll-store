@@ -1,19 +1,21 @@
 <script setup>
-import ProductList from './components/ProductList.vue'
+// Router components will be loaded here
 </script>
 
 <template>
   <div id="app">
     <header class="header">
       <div class="container">
-        <h1 class="title">Ürün Mağazası</h1>
-        <p class="subtitle">En kaliteli ürünleri keşfedin</p>
+        <router-link to="/" class="header-link">
+          <h1 class="title">Ürün Mağazası</h1>
+          <p class="subtitle">En kaliteli ürünleri keşfedin</p>
+        </router-link>
       </div>
     </header>
     
     <main class="main">
       <div class="container">
-        <ProductList />
+        <router-view />
       </div>
     </main>
     
@@ -51,6 +53,17 @@ body {
   padding: 3rem 0;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.header-link:hover {
+  transform: translateY(-2px);
 }
 
 .title {
